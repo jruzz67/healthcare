@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Chatbot</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #chatbox { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; margin-bottom: 10px; }
+        #message { width: 70%; padding: 5px; }
+        #send { padding: 5px 10px; }
+    </style>
+</head>
+<body>
+    <h2>Healthcare Chatbot</h2>
+    <div id="chatbox"></div>
+    <input type="text" id="message" placeholder="Type your message...">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const chatbox = document.getElementById('chatbox');
+        const messageInput = document.getElementById('message');
+
+        function addMessage(msg, isUser = false) {
+            const div = document.createElement('div');
+            div.textContent = (isUser ? 'You: ' : 'Bot: ') + msg;
+            div.style.textAlign = isUser ? 'right' : 'left';
+            chatbox.appendChild(div);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        function sendMessage() {
+            const msg = messageInput.value.trim();
+            if (msg) {
+                addMessage(msg, true);
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: msg })
+                })
+                .then(response => response.json())
+                .then(data => addMessage(data.message))
+                .catch(error => addMessage('Error: ' + error));
+                messageInput.value = '';
+            }
+        }
+
+        // Send message on Enter key
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
